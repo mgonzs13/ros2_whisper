@@ -3,7 +3,6 @@ import queue
 import torch
 import whisper
 import numpy as np
-from threading import Thread
 import speech_recognition as sr
 
 import rclpy
@@ -30,13 +29,12 @@ class WhisperNode(Node):
         self.whisper_model = self.whisper_model.to(device)
 
         # pub
-        self.audio_queue = queue.Queue()
         self.text_pub = self.create_publisher(
             String, "whisper/text", qos_profile_system_default)
 
         # threads
-        Thread(target=self.record_audio).start()
-        Thread(target=self.transcribe_forever).start()
+        self.create_timer(1, self.work)
+        self.get_logger().info("Whisper Started")
 
     def calibrate_stt(self, seconds: int):
 
@@ -51,7 +49,7 @@ class WhisperNode(Node):
             f"Set minimum energy threshold to { rec.energy_threshold}")
         return rec.energy_threshold
 
-    def record_audio(self) -> None:
+    def work(self) -> None:
         r = sr.Recognizer()
         r.energy_threshold = self.energy
         r.pause_threshold = self.pause
@@ -59,19 +57,16 @@ class WhisperNode(Node):
 
         with sr.Microphone(sample_rate=16000) as source:
             while True:
+                self.get_logger().info("Listening")
+
                 audio = r.listen(source)
                 audio_data = torch.from_numpy(np.frombuffer(
                     audio.get_raw_data(), np.int16).flatten().astype(np.float32) / 32768.0)
 
-                self.audio_queue.put_nowait(audio_data)
+                result = self.whisper_model.transcribe(audio_data)
 
-    def transcribe_forever(self):
-        while True:
-            audio_data = self.audio_queue.get()
-            result = self.whisper_model.transcribe(audio_data)
-
-            msg = String(data=result["text"])
-            self.text_pub.publish(msg)
+                msg = String(data=result["text"])
+                self.text_pub.publish(msg)
 
 
 def main(args=None):
