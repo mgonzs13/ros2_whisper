@@ -25,11 +25,14 @@ class WhisperNode(Node):
         )
 
         if self.get_parameter("initial_calibration").get_parameter_value().bool_value:
-            self.energy = self.calibrate_stt(2)
+            energy = self.calibrate_stt(2)
         else:
-            self.energy = 300
+            energy = 300
 
-        self.dynamic_energy = self.get_parameter(
+        # speech_recognition
+        self.r = sr.Recognizer()
+        self.r.energy_threshold = energy
+        self.r.dynamic_energy_threshold = self.get_parameter(
             "dynamic_energy").get_parameter_value().bool_value
 
         # whisper model
@@ -63,22 +66,19 @@ class WhisperNode(Node):
         return rec.energy_threshold
 
     def work(self) -> None:
-        r = sr.Recognizer()
-        r.energy_threshold = self.energy
-        r.dynamic_energy_threshold = self.dynamic_energy
 
         with sr.Microphone(sample_rate=16000) as source:
-            while True:
-                self.get_logger().info("Listening")
 
-                audio = r.listen(source)
-                audio_data = torch.from_numpy(np.frombuffer(
-                    audio.get_raw_data(), np.int16).flatten().astype(np.float32) / 32768.0)
+            self.get_logger().info("Listening")
+            audio = self.r.listen(source)
 
-                result = self.whisper_model.transcribe(audio_data)
+            audio_data = torch.from_numpy(np.frombuffer(
+                audio.get_raw_data(), np.int16).flatten().astype(np.float32) / 32768.0)
 
-                msg = String(data=result["text"])
-                self.text_pub.publish(msg)
+            result = self.whisper_model.transcribe(audio_data)
+
+            msg = String(data=result["text"])
+            self.text_pub.publish(msg)
 
 
 def main(args=None):
