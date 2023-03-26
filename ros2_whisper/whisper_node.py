@@ -1,5 +1,4 @@
 
-import queue
 import torch
 import whisper
 import numpy as np
@@ -16,12 +15,26 @@ class WhisperNode(Node):
         super().__init__(node_name)
 
         # params
-        self.energy = self.calibrate_stt(2)
-        self.pause = 0.8
-        self.dynamic_energy = True
+        self.declare_parameters(
+            namespace="",
+            parameters=[
+                ("initial_calibration", True),
+                ("dynamic_energy", True),
+                ("whisper_model", "small")
+            ]
+        )
+
+        if self.get_parameter("initial_calibration").get_parameter_value().bool_value:
+            self.energy = self.calibrate_stt(2)
+        else:
+            self.energy = 300
+
+        self.dynamic_energy = self.get_parameter(
+            "dynamic_energy").get_parameter_value().bool_value
 
         # whisper model
-        self.whisper_model = whisper.load_model("small")
+        self.whisper_model = whisper.load_model(self.get_parameter(
+            "whisper_model").get_parameter_value().string_value)
         device = "cpu"
         if torch.cuda.is_available():
             self.get_logger().info("CUDA is available. Using GPU.")
@@ -52,7 +65,6 @@ class WhisperNode(Node):
     def work(self) -> None:
         r = sr.Recognizer()
         r.energy_threshold = self.energy
-        r.pause_threshold = self.pause
         r.dynamic_energy_threshold = self.dynamic_energy
 
         with sr.Microphone(sample_rate=16000) as source:
