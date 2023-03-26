@@ -83,8 +83,8 @@ class WhisperNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    whisper_inference_node = WhisperNode("whisper_inference_node")
-    rclpy.spin(whisper_inference_node)
+    whisper_node = WhisperNode("whisper_node")
+    rclpy.spin(whisper_node)
     rclpy.shutdown()
 
 
