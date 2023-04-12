@@ -6,7 +6,7 @@ Repository showcases inference of the [OpenAI Whisper](https://github.com/openai
 
 ```shell
 $ cd ~/ros2_ws/src
-$ git clone https://github.com/mgonzs13/ros2_whisper.git
+$ git clone https://github.com/mgonzs13/whisper_ros.git
 $ pip3 install -r requirements.txt
 $ cd ~/ros2_ws
 $ colcon build
