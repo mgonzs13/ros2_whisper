@@ -15,11 +15,11 @@ $ colcon build
 ## Usage
 
 ```shell
-$ ros2 launch ros2_whisper ros2_whisper.launch.py
+$ ros2 launch whisper_bringup whisper.launch.py
 ```
 
 To print the inferenced text, do
 
 ```shell
-$ ros2 topic echo /whisper/text
+$ ros2 topic echo /whisper_text
 ```

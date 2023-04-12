@@ -27,7 +27,7 @@ def generate_launch_description():
         choices=["tiny", "base", "small", "medium", "large"])
 
     whisper_node = Node(
-        package="ros2_whisper",
+        package="whisper_ros",
         executable="whisper_node",
         output="screen",
         parameters=[{"initial_calibration": initial_calibration},

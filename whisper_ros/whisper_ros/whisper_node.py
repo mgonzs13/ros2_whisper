@@ -46,7 +46,7 @@ class WhisperNode(Node):
 
         # pub
         self.text_pub = self.create_publisher(
-            String, "whisper/text", qos_profile_system_default)
+            String, "whisper_text", qos_profile_system_default)
 
         # threads
         self.create_timer(1, self.work)

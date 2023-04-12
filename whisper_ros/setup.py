@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = "ros2_whisper"
+package_name = "whisper_ros"
 
 setup(
     name=package_name,
@@ -10,7 +10,6 @@ setup(
         ("share/ament_index/resource_index/packages",
          ["resource/" + package_name]),
         ("share/" + package_name, ["package.xml"]),
-        ("share/" + package_name, ["launch/ros2_whisper.launch.py"]),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
@@ -21,7 +20,7 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "whisper_node = ros2_whisper.whisper_node:main",
+            "whisper_node = whisper_ros.whisper_node:main",
         ],
     },
 )
