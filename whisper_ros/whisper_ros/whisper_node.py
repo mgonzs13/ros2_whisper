@@ -11,8 +11,8 @@ from std_msgs.msg import String
 
 
 class WhisperNode(Node):
-    def __init__(self, node_name: str) -> None:
-        super().__init__(node_name)
+    def __init__(self) -> None:
+        super().__init__("whisper_node")
 
         # params
         self.declare_parameters(
@@ -83,7 +83,7 @@ class WhisperNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    whisper_node = WhisperNode("whisper_node")
+    whisper_node = WhisperNode()
     rclpy.spin(whisper_node)
     rclpy.shutdown()
 
